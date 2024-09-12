@@ -31,7 +31,7 @@ function shareDataUrl(dataUrl, caption, contentUrl,  callback, mode) {
   var imageData = dataUrl.replace(/data:image\/(png|jpeg);base64,/, "");
 
     if (cordova && cordova.plugins && cordova.plugins.clipboard && caption !== '') {
-      console.log("copying caption: ", caption, contentUrl);
+      console.log("copying caption 1: ", contentUrl, caption);
       cordova.plugins.clipboard.copy(caption);
     }
 
