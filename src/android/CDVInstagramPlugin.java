@@ -67,11 +67,12 @@ public class CDVInstagramPlugin extends CordovaPlugin {
         if (action.equals("share")) {
             String imageString = args.getString(0);
             String captionString = args.getString(1);
+            String contentUrl = args.getString(2);
 
             PluginResult result = new PluginResult(Status.NO_RESULT);
             result.setKeepCallback(true);
 
-            this.share(imageString, captionString);
+            this.share(imageString, captionString, contentUrl);
             return true;
         } else if (action.equals("isInstalled")) {
             this.isInstalled();
@@ -90,7 +91,7 @@ public class CDVInstagramPlugin extends CordovaPlugin {
         }
     }
 
-    private void share(String imageString, String captionString) {
+    private void share(String imageString, String captionString, String contentUrl) {
         if (imageString != null && imageString.length() > 0) { 
             byte[] imageData = Base64.decode(imageString, 0);
             
@@ -136,8 +137,9 @@ public class CDVInstagramPlugin extends CordovaPlugin {
 
                 shareIntent.putExtra(Intent.EXTRA_STREAM, photoURI);
                 shareIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            }
 
+            }
+            shareIntent.putExtra("content_url", contentUrl);
             shareIntent.putExtra(Intent.EXTRA_TEXT, captionString);
             shareIntent.setPackage("com.instagram.android");
 

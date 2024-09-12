@@ -27,7 +27,7 @@ var exec = require('cordova/exec');
 var hasCheckedInstall,
     isAppInstalled;
 
-function shareDataUrl(dataUrl, caption, callback, mode) {
+function shareDataUrl(dataUrl, caption, contentUrl,  callback, mode) {
   var imageData = dataUrl.replace(/data:image\/(png|jpeg);base64,/, "");
 
     if (cordova && cordova.plugins && cordova.plugins.clipboard && caption !== '') {
@@ -69,9 +69,11 @@ var Plugin = {
   share: function () {
     var data,
         caption,
+        contentUrl,
         callback,
         mode = this.SHARE_MODES.DEFAULT; // existing code will continue to function as normal. But users can "opt in" to use mode 1,2 or 3.
 
+    contentUrl = ''
     switch(arguments.length) {
     case 2:
       data = arguments[0];
@@ -89,6 +91,13 @@ var Plugin = {
         callback = arguments[2];
         mode = arguments[3];
         break;
+      case 4:
+        data = arguments[0];
+        caption = arguments[1];
+        contentUrl = arguments[2];
+        callback = arguments[3];
+        mode = arguments[4];
+        break;
     default:
     }
 
@@ -102,10 +111,10 @@ var Plugin = {
         magic = "data:image";
 
     if (canvas) {
-      shareDataUrl(canvas.toDataURL(), caption, callback, mode);
+      shareDataUrl(canvas.toDataURL(), caption, contentUrl, callback, mode);
     }
     else if (data.slice(0, magic.length) == magic) {
-      shareDataUrl(data, caption, callback, mode);
+      shareDataUrl(data, caption, contentUrl,callback, mode);
     }
     else
     {
