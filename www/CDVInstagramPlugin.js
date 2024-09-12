@@ -91,13 +91,13 @@ var Plugin = {
         callback = arguments[2];
         mode = arguments[3];
         break;
-      case 4:
-        data = arguments[0];
-        caption = arguments[1];
-        contentUrl = arguments[2];
-        callback = arguments[3];
-        mode = arguments[4];
-        break;
+    case 5:
+      data = arguments[0];
+      caption = arguments[1];
+      contentUrl = arguments[2];
+      callback = arguments[3];
+      mode = arguments[4];
+      break;
     default:
     }
 
