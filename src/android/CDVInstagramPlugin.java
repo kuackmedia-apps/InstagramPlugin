@@ -71,7 +71,7 @@ public class CDVInstagramPlugin extends CordovaPlugin {
 
             PluginResult result = new PluginResult(Status.NO_RESULT);
             result.setKeepCallback(true);
-
+            Log.v("Instagram share", contentUrl);
             this.share(imageString, captionString, contentUrl);
             return true;
         } else if (action.equals("isInstalled")) {
