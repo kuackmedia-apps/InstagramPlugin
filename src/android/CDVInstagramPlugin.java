@@ -49,6 +49,12 @@ import androidx.core.content.FileProvider;
 
 @TargetApi(Build.VERSION_CODES.FROYO)
 public class CDVInstagramPlugin extends CordovaPlugin {
+    public static final String SUCCESS = "SUCCESS";
+
+    //packages
+    private final String INSTAGRAM_PACKAGE = "com.instagram.android";
+    private final String INSTAGRAM_STORY_PACKAGE = "com.instagram.share.ADD_TO_STORY";
+    private final String INSTAGRAM_FEED_PACKAGE = "com.instagram.share.ADD_TO_FEED";
 
     private static final FilenameFilter OLD_IMAGE_FILTER = new FilenameFilter() {
         @Override
@@ -91,61 +97,96 @@ public class CDVInstagramPlugin extends CordovaPlugin {
     }
 
     private void share(String imageString, String captionString) {
-        if (imageString != null && imageString.length() > 0) { 
-            byte[] imageData = Base64.decode(imageString, 0);
-            
-            File file = null;  
-            FileOutputStream os = null;
-            
-            File parentDir = this.webView.getContext().getExternalFilesDir(null);
-            File[] oldImages = parentDir.listFiles(OLD_IMAGE_FILTER);
-            for (File oldImage : oldImages) {
-                oldImage.delete();
-            }
-
-            try {
-                file = File.createTempFile("instagram", ".png", parentDir);
-                os = new FileOutputStream(file, true);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            try {
-                os.write(imageData);
-                os.flush();
-                os.close();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-
-            Intent shareIntent = new Intent(Intent.ACTION_SEND);
-            shareIntent.setType("image/*");
-
-            if (Build.VERSION.SDK_INT < 26) {
-                // Handle the file uri with pre Oreo method    
-                shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
-            } else {
-                // Handle the file URI using Android Oreo file provider
-                FileProvider FileProvider = new FileProvider();
-
-                Uri photoURI = FileProvider.getUriForFile(
-                        this.cordova.getActivity().getApplicationContext(),
-                        this.cordova.getActivity().getPackageName() + ".provider",
-                        file);
-
-                shareIntent.putExtra(Intent.EXTRA_STREAM, photoURI);
-                shareIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            }
-
-            shareIntent.putExtra(Intent.EXTRA_TEXT, captionString);
-            shareIntent.setPackage("com.instagram.android");
-
-            this.cordova.startActivityForResult((CordovaPlugin) this, Intent.createChooser(shareIntent, "Share to"), 12345);   
-        } else {
-            this.cbContext.error("Expected one non-empty string argument.");
-        }
+        this.shareToStory(imageString, captionString);
     }
+
+    private File getFileFromBase64String(String imageString){
+           byte[] imageData = Base64.decode(imageString, 0);
+
+           File file = null;
+           FileOutputStream os = null;
+
+           File parentDir = this.webView.getContext().getExternalFilesDir(null);
+           File[] oldImages = parentDir.listFiles(OLD_IMAGE_FILTER);
+           for (File oldImage : oldImages) {
+               oldImage.delete();
+           }
+
+           try {
+               file = File.createTempFile("instagram", ".png", parentDir);
+               os = new FileOutputStream(file, true);
+           } catch (Exception e) {
+               e.printStackTrace();
+           }
+
+           try {
+               os.write(imageData);
+               os.flush();
+               os.close();
+           } catch (IOException e) {
+               // TODO Auto-generated catch block
+               e.printStackTrace();
+           }
+           return file;
+       }
+       private void shareToStory(String imageString, String captionString) {
+           try {
+               File backgroundFile = null; //getFileFromBase64String(imageString);
+               File stickerFile = getFileFromBase64String(imageString);
+               String backgroundBottomColor = "#000000";
+               String backgroundTopColor = "#FFFFFF";
+               String attributionLink = "https://app.brisamusic.com.br/";
+               String applicationId = "486708520874477";
+               Intent intent = new Intent("com.instagram.share.ADD_TO_STORY");
+               intent.putExtra("source_application", applicationId);
+               String providerName = this.cordova.getActivity().getPackageName() + ".provider";
+               Activity activity = this.cordova.getActivity();
+
+               if (backgroundFile != null){
+                   Uri backgroundImageUri = FileProvider.getUriForFile(activity, providerName, backgroundFile);
+
+                   //intent.setDataAndType(backgroundImageUri, MEDIA_TYPE_IMAGE);
+                   intent.setDataAndType(backgroundImageUri, MEDIA_TYPE_IMAGE);
+               } else {
+                   intent.setType(MEDIA_TYPE_IMAGE);
+               }
+
+               if(stickerFile != null){
+                   //
+                   Uri stickerAssetUri = FileProvider.getUriForFile(activity, providerName, stickerFile);
+
+                   intent.putExtra("interactive_asset_uri", stickerAssetUri );
+                   activity.grantUriPermission(
+                           "com.instagram.android", stickerAssetUri , Intent.FLAG_GRANT_READ_URI_PERMISSION);
+               }
+
+               intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+               if(backgroundBottomColor != null){
+                   intent.putExtra("bottom_background_color", backgroundBottomColor);
+               }
+
+               if(backgroundTopColor != null){
+                   intent.putExtra("top_background_color", backgroundTopColor);
+               }
+
+               if(attributionLink != null){
+                   intent.putExtra("content_url", attributionLink);
+               }
+               //this.cordova.startActivityForResult((CordovaPlugin) this, shareIntent, 12345);
+               if (activity.getPackageManager().resolveActivity(intent, 0) != null) {
+                  // activity.startActivityForResult(intent, 0);
+                   this.cordova.startActivityForResult((CordovaPlugin) this, intent, 12345);
+               }else{
+                   throw new Exception("Couldn't open intent");
+               }
+           }catch (Exception e){
+               e.printStackTrace();
+               this.cbContext.error("Error sharing to Instagram");
+           }
+
+       }
+
     
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
