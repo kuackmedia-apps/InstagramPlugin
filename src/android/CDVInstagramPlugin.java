@@ -55,6 +55,7 @@ public class CDVInstagramPlugin extends CordovaPlugin {
     private final String INSTAGRAM_PACKAGE = "com.instagram.android";
     private final String INSTAGRAM_STORY_PACKAGE = "com.instagram.share.ADD_TO_STORY";
     private final String INSTAGRAM_FEED_PACKAGE = "com.instagram.share.ADD_TO_FEED";
+    private static final String MEDIA_TYPE_IMAGE = "image/*";
 
     private static final FilenameFilter OLD_IMAGE_FILTER = new FilenameFilter() {
         @Override
