@@ -74,8 +74,9 @@ public class CDVInstagramPlugin extends CordovaPlugin {
         if (action.equals("share")) {
             String imageString = args.getString(0);
             String captionString = args.getString(1);
-            String topColor = args.getString(2);
-            String bottomColor = args.getString(3);
+            String mode = args.getString(2);
+            String topColor = args.getString(3);
+            String bottomColor = args.getString(4);
 
             PluginResult result = new PluginResult(Status.NO_RESULT);
             result.setKeepCallback(true);
