@@ -133,7 +133,8 @@ public class CDVInstagramPlugin extends CordovaPlugin {
         }
         return file;
     }
-    private void shareToStory(String imageString, String captionString, String backgroundBottomColor, String backgroundTopColor) {
+    private void shareToStory(String imageString, String captionString, String backgroundTopColor, String
+    backgroundBottomColor) {
         try {
             File backgroundFile = null; //getFileFromBase64String(imageString);
             File stickerFile = getFileFromBase64String(imageString);
