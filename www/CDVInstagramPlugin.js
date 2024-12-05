@@ -41,7 +41,7 @@ function shareDataUrl(dataUrl, caption, callback, mode, topBackgroundColor, bott
         },
         function (err) {
             callback && callback(err);
-        }, "Instagram", "share", [imageData, caption, mode]
+        }, "Instagram", "share", [imageData, caption, mode, topBackgroundColor, bottomBackgroundColor]
     );
 }
 
