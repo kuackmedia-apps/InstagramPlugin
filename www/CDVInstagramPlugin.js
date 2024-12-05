@@ -27,7 +27,7 @@ var exec = require('cordova/exec');
 var hasCheckedInstall,
     isAppInstalled;
 
-function shareDataUrl(dataUrl, caption, callback, mode) {
+function shareDataUrl(dataUrl, caption, callback, mode, topBackgroundColor, bottomBackgroundColor) {
   var imageData = dataUrl.replace(/data:image\/(png|jpeg);base64,/, "");
 
     if (cordova && cordova.plugins && cordova.plugins.clipboard && caption !== '') {
@@ -70,6 +70,8 @@ var Plugin = {
     var data,
         caption,
         callback,
+        topBackgroundColor,
+        bottomBackgroundColor,
         mode = this.SHARE_MODES.DEFAULT; // existing code will continue to function as normal. But users can "opt in" to use mode 1,2 or 3.
 
     switch(arguments.length) {
@@ -89,6 +91,14 @@ var Plugin = {
         callback = arguments[2];
         mode = arguments[3];
         break;
+    case 6:
+        data = arguments[0];
+        caption = arguments[1];
+        callback = arguments[2];
+        topBackgroundColor = arguments[3];
+        bottomBackgroundColor = arguments[4];
+        mode = arguments[3];
+        break;
     default:
     }
 
@@ -102,10 +112,10 @@ var Plugin = {
         magic = "data:image";
 
     if (canvas) {
-      shareDataUrl(canvas.toDataURL(), caption, callback, mode);
+      shareDataUrl(canvas.toDataURL(), caption, callback, mode, topBackgroundColor, bottomBackgroundColor);
     }
     else if (data.slice(0, magic.length) == magic) {
-      shareDataUrl(data, caption, callback, mode);
+      shareDataUrl(data, caption, callback, mode, topBackgroundColor, bottomBackgroundColor);
     }
     else
     {

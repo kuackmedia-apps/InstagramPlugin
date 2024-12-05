@@ -65,20 +65,22 @@ public class CDVInstagramPlugin extends CordovaPlugin {
     };
 
     CallbackContext cbContext;
-    
+
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
-        
+
         this.cbContext = callbackContext;
-        
+
         if (action.equals("share")) {
             String imageString = args.getString(0);
             String captionString = args.getString(1);
+            String topColor = args.getString(2);
+            String bottomColor = args.getString(3);
 
             PluginResult result = new PluginResult(Status.NO_RESULT);
             result.setKeepCallback(true);
 
-            this.share(imageString, captionString);
+            this.share(imageString, captionString, topColor, bottomColor);
             return true;
         } else if (action.equals("isInstalled")) {
             this.isInstalled();
@@ -87,7 +89,7 @@ public class CDVInstagramPlugin extends CordovaPlugin {
         }
         return false;
     }
-    
+
     private void isInstalled() {
         try {
             this.webView.getContext().getPackageManager().getApplicationInfo("com.instagram.android", 0);
@@ -97,98 +99,97 @@ public class CDVInstagramPlugin extends CordovaPlugin {
         }
     }
 
-    private void share(String imageString, String captionString) {
-        this.shareToStory(imageString, captionString);
+    private void share(String imageString, String captionString, String topBackgroundColor, String
+            bottomBackgroundColor) {
+        this.shareToStory(imageString, captionString, topBackgroundColor, bottomBackgroundColor);
     }
 
     private File getFileFromBase64String(String imageString){
-           byte[] imageData = Base64.decode(imageString, 0);
+        byte[] imageData = Base64.decode(imageString, 0);
 
-           File file = null;
-           FileOutputStream os = null;
+        File file = null;
+        FileOutputStream os = null;
 
-           File parentDir = this.webView.getContext().getExternalFilesDir(null);
-           File[] oldImages = parentDir.listFiles(OLD_IMAGE_FILTER);
-           for (File oldImage : oldImages) {
-               oldImage.delete();
-           }
+        File parentDir = this.webView.getContext().getExternalFilesDir(null);
+        File[] oldImages = parentDir.listFiles(OLD_IMAGE_FILTER);
+        for (File oldImage : oldImages) {
+            oldImage.delete();
+        }
 
-           try {
-               file = File.createTempFile("instagram", ".png", parentDir);
-               os = new FileOutputStream(file, true);
-           } catch (Exception e) {
-               e.printStackTrace();
-           }
+        try {
+            file = File.createTempFile("instagram", ".png", parentDir);
+            os = new FileOutputStream(file, true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-           try {
-               os.write(imageData);
-               os.flush();
-               os.close();
-           } catch (IOException e) {
-               // TODO Auto-generated catch block
-               e.printStackTrace();
-           }
-           return file;
-       }
-       private void shareToStory(String imageString, String captionString) {
-           try {
-               File backgroundFile = null; //getFileFromBase64String(imageString);
-               File stickerFile = getFileFromBase64String(imageString);
-               String backgroundBottomColor = "#000000";
-               String backgroundTopColor = "#FFFFFF";
-               String attributionLink = "https://app.brisamusic.com.br/";
-               String applicationId = "486708520874477";
-               Intent intent = new Intent("com.instagram.share.ADD_TO_STORY");
-               intent.putExtra("source_application", applicationId);
-               String providerName = this.cordova.getActivity().getPackageName() + ".provider";
-               Activity activity = this.cordova.getActivity();
+        try {
+            os.write(imageData);
+            os.flush();
+            os.close();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return file;
+    }
+    private void shareToStory(String imageString, String captionString, String backgroundBottomColor, String backgroundTopColor) {
+        try {
+            File backgroundFile = null; //getFileFromBase64String(imageString);
+            File stickerFile = getFileFromBase64String(imageString);
+            String attributionLink = "https://app.brisamusic.com.br/";
+            String applicationId = "486708520874477";
+            Intent intent = new Intent("com.instagram.share.ADD_TO_STORY");
+            intent.putExtra("source_application", applicationId);
+            String providerName = this.cordova.getActivity().getPackageName() + ".provider";
+            Activity activity = this.cordova.getActivity();
 
-               if (backgroundFile != null){
-                   Uri backgroundImageUri = FileProvider.getUriForFile(activity, providerName, backgroundFile);
+            if (backgroundFile != null){
+                Uri backgroundImageUri = FileProvider.getUriForFile(activity, providerName, backgroundFile);
 
-                   //intent.setDataAndType(backgroundImageUri, MEDIA_TYPE_IMAGE);
-                   intent.setDataAndType(backgroundImageUri, MEDIA_TYPE_IMAGE);
-               } else {
-                   intent.setType(MEDIA_TYPE_IMAGE);
-               }
+                //intent.setDataAndType(backgroundImageUri, MEDIA_TYPE_IMAGE);
+                intent.setDataAndType(backgroundImageUri, MEDIA_TYPE_IMAGE);
+            } else {
+                intent.setType(MEDIA_TYPE_IMAGE);
+            }
 
-               if(stickerFile != null){
-                   //
-                   Uri stickerAssetUri = FileProvider.getUriForFile(activity, providerName, stickerFile);
+            if(stickerFile != null){
+                //
+                Uri stickerAssetUri = FileProvider.getUriForFile(activity, providerName, stickerFile);
 
-                   intent.putExtra("interactive_asset_uri", stickerAssetUri );
-                   activity.grantUriPermission(
-                           "com.instagram.android", stickerAssetUri , Intent.FLAG_GRANT_READ_URI_PERMISSION);
-               }
+                intent.putExtra("interactive_asset_uri", stickerAssetUri );
+                activity.grantUriPermission(
+                        "com.instagram.android", stickerAssetUri , Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            }
 
-               intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
-               if(backgroundBottomColor != null){
-                   intent.putExtra("bottom_background_color", backgroundBottomColor);
-               }
+            if(backgroundBottomColor != null){
+                intent.putExtra("bottom_background_color", backgroundBottomColor);
+            }
 
-               if(backgroundTopColor != null){
-                   intent.putExtra("top_background_color", backgroundTopColor);
-               }
+            if(backgroundTopColor != null){
+                intent.putExtra("top_background_color", backgroundTopColor);
+            }
 
-               if(attributionLink != null){
-                   intent.putExtra("content_url", attributionLink);
-               }
-               //this.cordova.startActivityForResult((CordovaPlugin) this, shareIntent, 12345);
-               if (activity.getPackageManager().resolveActivity(intent, 0) != null) {
-                  // activity.startActivityForResult(intent, 0);
-                   this.cordova.startActivityForResult((CordovaPlugin) this, intent, 12345);
-               }else{
-                   throw new Exception("Couldn't open intent");
-               }
-           }catch (Exception e){
-               e.printStackTrace();
-               this.cbContext.error("Error sharing to Instagram");
-           }
+            if(attributionLink != null){
+                intent.putExtra("content_url", attributionLink);
+            }
+            //this.cordova.startActivityForResult((CordovaPlugin) this, shareIntent, 12345);
+            if (activity.getPackageManager().resolveActivity(intent, 0) != null) {
+                // activity.startActivityForResult(intent, 0);
+                this.cordova.startActivityForResult((CordovaPlugin) this, intent, 12345);
+            }else{
+                throw new Exception("Couldn't open intent");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            this.cbContext.error("Error sharing to Instagram");
+        }
 
-       }
+    }
 
-    
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK) {
