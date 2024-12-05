@@ -91,13 +91,12 @@ var Plugin = {
         callback = arguments[2];
         mode = arguments[3];
         break;
-    case 6:
+    case 5:
         data = arguments[0];
         caption = arguments[1];
         callback = arguments[2];
         topBackgroundColor = arguments[3];
         bottomBackgroundColor = arguments[4];
-        mode = arguments[3];
         break;
     default:
     }
