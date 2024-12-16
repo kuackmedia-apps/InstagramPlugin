@@ -27,7 +27,7 @@ var exec = require('cordova/exec');
 var hasCheckedInstall,
     isAppInstalled;
 
-function shareDataUrl(dataUrl, caption, callback, mode, topBackgroundColor, bottomBackgroundColor) {
+function shareDataUrl(dataUrl, caption, callback, mode, topBackgroundColor, bottomBackgroundColor, applicationId) {
   var imageData = dataUrl.replace(/data:image\/(png|jpeg);base64,/, "");
 
     if (cordova && cordova.plugins && cordova.plugins.clipboard && caption !== '') {
@@ -41,7 +41,7 @@ function shareDataUrl(dataUrl, caption, callback, mode, topBackgroundColor, bott
         },
         function (err) {
             callback && callback(err);
-        }, "Instagram", "share", [imageData, caption, mode, topBackgroundColor, bottomBackgroundColor]
+        }, "Instagram", "share", [imageData, caption, mode, topBackgroundColor, bottomBackgroundColor, applicationId]
     );
 }
 
@@ -72,6 +72,7 @@ var Plugin = {
         callback,
         topBackgroundColor,
         bottomBackgroundColor,
+        applicationId,
         mode = this.SHARE_MODES.DEFAULT; // existing code will continue to function as normal. But users can "opt in" to use mode 1,2 or 3.
 
     switch(arguments.length) {
@@ -97,6 +98,7 @@ var Plugin = {
         callback = arguments[2];
         topBackgroundColor = arguments[3];
         bottomBackgroundColor = arguments[4];
+        applicationId = arguments[5];
         break;
     default:
     }
@@ -111,10 +113,10 @@ var Plugin = {
         magic = "data:image";
 
     if (canvas) {
-      shareDataUrl(canvas.toDataURL(), caption, callback, mode, topBackgroundColor, bottomBackgroundColor);
+      shareDataUrl(canvas.toDataURL(), caption, callback, mode, topBackgroundColor, bottomBackgroundColor, applicationId);
     }
     else if (data.slice(0, magic.length) == magic) {
-      shareDataUrl(data, caption, callback, mode, topBackgroundColor, bottomBackgroundColor);
+      shareDataUrl(data, caption, callback, mode, topBackgroundColor, bottomBackgroundColor, applicationId);
     }
     else
     {

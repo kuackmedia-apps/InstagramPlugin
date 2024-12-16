@@ -135,12 +135,12 @@ public class CDVInstagramPlugin extends CordovaPlugin {
         return file;
     }
     private void shareToStory(String imageString, String captionString, String backgroundTopColor, String
-    backgroundBottomColor) {
+    backgroundBottomColor, String applicationId) {
         try {
             File backgroundFile = null; //getFileFromBase64String(imageString);
             File stickerFile = getFileFromBase64String(imageString);
-            String attributionLink = "https://app.brisamusic.com.br/";
-            String applicationId = "486708520874477";
+            String attributionLink = captionString;
+           // String applicationId = "486708520874477";
             Intent intent = new Intent("com.instagram.share.ADD_TO_STORY");
             intent.putExtra("source_application", applicationId);
             String providerName = this.cordova.getActivity().getPackageName() + ".provider";
