@@ -92,7 +92,7 @@ var Plugin = {
         callback = arguments[2];
         mode = arguments[3];
         break;
-    case 5:
+    case 6:
         data = arguments[0];
         caption = arguments[1];
         callback = arguments[2];
