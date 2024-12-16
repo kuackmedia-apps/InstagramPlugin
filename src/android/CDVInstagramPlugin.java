@@ -146,6 +146,8 @@ public class CDVInstagramPlugin extends CordovaPlugin {
             intent.putExtra("source_application", applicationId);
             String providerName = this.cordova.getActivity().getPackageName() + ".provider";
             Activity activity = this.cordova.getActivity();
+            Log.v("Instagram shareToStory attributionLink", captionString);
+            Log.v("Instagram shareToStory applicationId", applicationId);
 
             if (backgroundFile != null){
                 Uri backgroundImageUri = FileProvider.getUriForFile(activity, providerName, backgroundFile);
