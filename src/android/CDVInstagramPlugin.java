@@ -77,11 +77,12 @@ public class CDVInstagramPlugin extends CordovaPlugin {
             String mode = args.getString(2);
             String topColor = args.getString(3);
             String bottomColor = args.getString(4);
+            String applicationId = args.getString(5);
 
             PluginResult result = new PluginResult(Status.NO_RESULT);
             result.setKeepCallback(true);
 
-            this.share(imageString, captionString, topColor, bottomColor);
+            this.share(imageString, captionString, topColor, bottomColor, applicationId);
             return true;
         } else if (action.equals("isInstalled")) {
             this.isInstalled();
@@ -101,8 +102,8 @@ public class CDVInstagramPlugin extends CordovaPlugin {
     }
 
     private void share(String imageString, String captionString, String topBackgroundColor, String
-            bottomBackgroundColor) {
-        this.shareToStory(imageString, captionString, topBackgroundColor, bottomBackgroundColor);
+            bottomBackgroundColor, String applicationId) {
+        this.shareToStory(imageString, captionString, topBackgroundColor, bottomBackgroundColor, applicationId);
     }
 
     private File getFileFromBase64String(String imageString){
