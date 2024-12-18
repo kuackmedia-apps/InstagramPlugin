@@ -178,6 +178,7 @@ public class CDVInstagramPlugin extends CordovaPlugin {
             }
 
             if(attributionLink != null){
+             Log.v("Instagram shareToStory content_url", attributionLink);
                 intent.putExtra("content_url", attributionLink);
             }
             //this.cordova.startActivityForResult((CordovaPlugin) this, shareIntent, 12345);

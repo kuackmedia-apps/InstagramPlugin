@@ -74,17 +74,21 @@ typedef NS_ENUM(NSUInteger, ERROR_CODE) {
     NSString    *objectAtIndex0 = [command argumentAtIndex:0];
     NSString    *caption = [command argumentAtIndex:1];
     NSNumber    *mode = [command argumentAtIndex:2];
-    
+    NSString    *backgroundTopColor = [command argumentAtIndex:3];
+    NSString    *backgroundBottomColor = [command argumentAtIndex:4];
+    NSString    *appID = [command argumentAtIndex:5];
     __block CDVPluginResult *result;
-    
+
     NSURL *instagramURL = [NSURL URLWithString:@"instagram://app"];
     if ([[UIApplication sharedApplication] canOpenURL:instagramURL]) {
         NSLog(@"open in instagram");
-        
+
         NSData *imageObj = [[NSData alloc] initWithBase64EncodedString:objectAtIndex0 options:0];
         NSString *tmpDir = NSTemporaryDirectory();
         NSString *path;
         NSString *uti;
+
+        NSLog(@"Instagram");
 
         if (mode.intValue == LM_DEFAULT) {
             if (IS_IOS13orHIGHER) {
@@ -94,20 +98,24 @@ typedef NS_ENUM(NSUInteger, ERROR_CODE) {
                 path = [tmpDir stringByAppendingPathComponent:@"instagram.igo"];
                 uti = @"com.instagram.exclusivegram";
             }
+            NSLog(@"Instagram 1");
             NSLog(@"Using DEFAULT logic mode: %@", path);
         }
         else if (mode.intValue == LM_IG) {
             path = [tmpDir stringByAppendingPathComponent:@"instagram.ig"];
             uti = @"com.instagram.photo";
+            NSLog(@"Instagram 2");
         }
         else if (mode.intValue == LM_IGO) {
             path = [tmpDir stringByAppendingPathComponent:@"instagram.igo"];
             uti = @"com.instagram.exclusivegram";
+            NSLog(@"Instagram 3");
         }
         else {
             NSString *fileName;
             fileName = @"cordova-instagram.jpg"; // todo: perhaps a random hash would be better.
             path = [tmpDir stringByAppendingPathComponent:fileName];
+            NSLog(@"Instagram 4");
         }
 
         NSLog(@"Saving temporary file under app specific folder: %@", path);
@@ -124,15 +132,32 @@ typedef NS_ENUM(NSUInteger, ERROR_CODE) {
 
             self.interactionController .UTI = uti;
             self.interactionController .delegate = self;
-            if ([self.interactionController presentOpenInMenuFromRect:CGRectZero inView:self.webView animated:YES]){
-                NSLog(@"menu is presented");
-            }
+           // if ([self.interactionController presentOpenInMenuFromRect:CGRectZero inView:self.webView animated:YES]){
+             //   NSLog(@"menu is presented");
+           // }
+                NSURL *urlScheme = [NSURL URLWithString:[NSString stringWithFormat:@"instagram-stories://share?source_application=%@", appID]];
+
+
+            // Attach the pasteboard items
+               NSArray *pasteboardItems = @[@{@"com.instagram.sharedSticker.stickerImage" : imageObj,
+                                              @"com.instagram.sharedSticker.backgroundTopColor" : backgroundTopColor,
+                                              @"com.instagram.sharedSticker.backgroundBottomColor" : backgroundBottomColor}];
+
+               // Set pasteboard options
+               NSDictionary *pasteboardOptions = @{UIPasteboardOptionExpirationDate : [[NSDate date] dateByAddingTimeInterval:60 * 5]};
+
+               // This call is iOS 10+, can use 'setItems' depending on what versions you support
+               [[UIPasteboard generalPasteboard] setItems:pasteboardItems options:pasteboardOptions];
+
+               [[UIApplication sharedApplication] openURL:urlScheme options:@{} completionHandler:nil];
+
+            NSLog(@"Instagram 5");
         } else {
             NSLog(@"Attempting to save to library, read as a PHAsset for it's localidentifier, and launch using App Intent.");
             UIImage *image = [UIImage imageWithContentsOfFile:path];
-            
-            __block NSString* localId;
 
+            __block NSString* localId;
+            NSLog(@"Instagram 6");
             // Add it to the photo library
             NSLog(@"Sharing to library now..");
             [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
