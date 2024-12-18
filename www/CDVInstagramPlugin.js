@@ -32,7 +32,7 @@ function shareDataUrl(dataUrl, caption, callback, mode, topBackgroundColor, bott
 
     if (cordova && cordova.plugins && cordova.plugins.clipboard && caption !== '') {
       console.log("copying caption: ", caption);
-      cordova.plugins.clipboard.copy(caption);
+      window.cordova.plugins.clipboard.copy(caption);
     }
 
     exec(
