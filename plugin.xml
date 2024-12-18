@@ -56,6 +56,7 @@
     <config-file target="*-Info.plist" parent="LSApplicationQueriesSchemes">
       <array>
         <string>instagram</string>
+        <string>instagram-stories</string>
       </array>
     </config-file>
 
